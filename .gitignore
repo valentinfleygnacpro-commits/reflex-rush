@@ -1,0 +1,19 @@
+# Logs
+*.log
+*.err.log
+
+# Android build/debug artifacts
+*.apk
+*.idsig
+*.zip
+.android/
+android-app/
+fresh-apk/
+FINAL/
+nouvelle-version/
+
+# Local/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

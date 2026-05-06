@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reflex Rush</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main id="game" class="game is-menu" aria-label="Jeu de reaction en premiere personne">
+      <div class="atmosphere" aria-hidden="true"></div>
+      <div class="hud" aria-live="polite">
+        <div class="hud-life">
+          <span>Vies</span>
+          <strong id="lives" class="life-pips" aria-label="3 vies"></strong>
+          <small id="recover">max</small>
+        </div>
+        <div class="hud-reaction">
+          <span>Reaction</span>
+          <strong id="reaction">-- ms</strong>
+        </div>
+      </div>
+
+      <section id="arena" class="arena">
+        <div class="ring-grid"></div>
+        <div class="back-title" aria-hidden="true">Reflex Rush</div>
+        <div id="boxer" class="boxer">
+          <div class="head">
+            <span class="mouth"></span>
+          </div>
+          <div class="neck"></div>
+          <div class="torso">
+            <div class="chest-line"></div>
+          </div>
+          <div class="arm arm-left">
+            <span></span>
+          </div>
+          <div class="arm arm-right">
+            <span></span>
+          </div>
+          <div class="glove glove-left"></div>
+          <div class="glove glove-right"></div>
+          <div class="waist"></div>
+        </div>
+      </section>
+
+      <div id="flash" class="flash"></div>
+      <div id="start" class="start-screen">
+        <div class="menu-bar" aria-label="Menu joueur">
+          <button id="avatarButton" class="avatar-button" type="button" aria-label="Changer avatar">
+            <svg class="profile-icon" viewBox="0 0 44 44" aria-hidden="true">
+              <circle class="profile-head" cx="22" cy="13" r="7"></circle>
+              <path class="profile-body" d="M7 38c2-10 7.5-15 15-15s13 5 15 15H7Z"></path>
+            </svg>
+          </button>
+          <strong class="menu-best" aria-label="Meilleur score">
+            <span>Meilleur score</span>
+            <b id="menuBest">0</b>
+          </strong>
+          <div class="menu-actions">
+            <div class="menu-actions-top">
+              <strong id="menuCoins" class="menu-coins" aria-label="Pieces">0</strong>
+              <button id="settingsButton" class="settings-button" type="button" aria-label="Parametres"></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="title-block">
+          <h1>Reflex Rush</h1>
+        </div>
+        <button class="play-button" type="button">Jouer</button>
+
+        <div id="avatarPanel" class="menu-panel avatar-panel hidden" aria-label="Choix avatar">
+          <button class="avatar-choice" type="button" data-avatar="cyan" aria-label="Avatar cyan"></button>
+          <button class="avatar-choice avatar-red" type="button" data-avatar="red" aria-label="Avatar rouge"></button>
+          <button class="avatar-choice avatar-green" type="button" data-avatar="green" aria-label="Avatar vert"></button>
+        </div>
+
+        <div id="settingsPanel" class="menu-panel settings-panel hidden" aria-label="Parametres">
+          <button id="soundButton" type="button">Son ON</button>
+        </div>
+      </div>
+
+      <div id="tutorial" class="tutorial hidden" aria-hidden="true">
+        <span class="demo-signal demo-fake"></span>
+        <span class="demo-signal demo-target"></span>
+        <svg class="demo-cursor" viewBox="0 0 100 88" preserveAspectRatio="none" aria-hidden="true">
+          <path
+            class="demo-hand"
+            d="M32 50V13c0-5 4-9 9-9s9 4 9 9v25c1-5 4-8 9-8s8 4 8 9v7c1-4 4-7 9-7s8 4 8 9v7c1-4 4-6 8-6 5 0 8 4 8 9v7c0 15-10 23-27 23H43c-12 0-21-6-27-17l-3-6c-2-5 0-9 4-10 4-1 7 0 10 4l5 6V50Z"
+          ></path>
+          <path class="demo-hand-line" d="M48 37v28M65 45v22M82 54v13"></path>
+        </svg>
+        <span class="demo-hit"></span>
+      </div>
+
+      <div id="koCount" class="ko-count hidden" aria-live="assertive"></div>
+
+      <div id="gameOver" class="game-over hidden">
+        <div>
+          <button id="homeButton" class="home-button" type="button" aria-label="Retour accueil">&larr; Home</button>
+          <p>KO</p>
+          <strong id="finalScore">0</strong>
+          <span id="coinBalance">Pieces: 0</span>
+          <div class="revive-actions" aria-label="Options pour rejouer">
+            <button id="coinReplay" type="button">Rejouer avec 1 piece</button>
+            <button id="adReplay" type="button">Regarder une pub</button>
+          </div>
+          <small id="replayStatus"></small>
+        </div>
+      </div>
+    </main>
+
+    <script src="game.js"></script>
+  </body>
+</html>
