@@ -28,9 +28,10 @@ const soundButton = document.getElementById("soundButton");
 const MAX_LIVES = 3;
 const RECOVERY_MS = 7000;
 const COIN_REPLAY_COST = 1;
-const DEFAULT_COINS = 3;
-const COIN_GRANT = 1789;
+const DEFAULT_COINS = 0;
 const COIN_GRANT_KEY = "neonGuardCoinGrant1789";
+const COIN_RESET_KEY = "reflexRushCoinsResetZero";
+const TUTORIAL_SEEN_KEY = "reflexRushTutorialSeen";
 let audioContext = null;
 let tinnitus = null;
 
@@ -53,6 +54,8 @@ const state = {
   recoveryStartedAt: 0,
   recoveryTicker: null,
   coins: readCoins(),
+  coinStreak: 0,
+  coinMultiplier: 1,
   bestScore: readBestScore(),
   avatar: readAvatar(),
   muted: readMuted(),
@@ -65,14 +68,15 @@ const makeId = () =>
   window.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
 function readCoins() {
-  const saved = Number(localStorage.getItem("neonGuardCoins"));
-  let coins = Number.isFinite(saved) ? saved : DEFAULT_COINS;
-  if (localStorage.getItem(COIN_GRANT_KEY) !== "true") {
-    coins += COIN_GRANT;
+  if (localStorage.getItem(COIN_RESET_KEY) !== "true") {
+    localStorage.setItem(COIN_RESET_KEY, "true");
     localStorage.setItem(COIN_GRANT_KEY, "true");
-    localStorage.setItem("neonGuardCoins", String(coins));
+    localStorage.setItem("neonGuardCoins", "0");
+    return 0;
   }
-  return coins;
+
+  const saved = Number(localStorage.getItem("neonGuardCoins"));
+  return Number.isFinite(saved) ? saved : DEFAULT_COINS;
 }
 
 function saveCoins() {
@@ -103,6 +107,14 @@ function readMuted() {
 
 function saveMuted() {
   localStorage.setItem("neonGuardMuted", String(state.muted));
+}
+
+function shouldShowTutorial() {
+  return localStorage.getItem(TUTORIAL_SEEN_KEY) !== "true";
+}
+
+function markTutorialSeen() {
+  localStorage.setItem(TUTORIAL_SEEN_KEY, "true");
 }
 
 function applyAvatar() {
@@ -162,23 +174,61 @@ function attackFromAngle(angle) {
   return vertical < 0 ? "straight-right" : "straight-left";
 }
 
+function coinsForReaction(reaction) {
+  if (reaction <= 260) return 5;
+  if (reaction <= 420) return 3;
+  if (reaction <= 650) return 2;
+  return 1;
+}
+
+function reactionComboLimit() {
+  const pressure = Math.min(state.wave / 190, 1);
+  return Math.round(720 - pressure * 260);
+}
+
+function updateCoinCombo(reaction) {
+  if (reaction <= reactionComboLimit()) {
+    state.coinStreak += 1;
+    state.coinMultiplier = Math.min(5, 1 + Math.floor(state.coinStreak / 5));
+    return;
+  }
+
+  state.coinStreak = 0;
+  state.coinMultiplier = 1;
+}
+
+function resetCoinCombo() {
+  state.coinStreak = 0;
+  state.coinMultiplier = 1;
+}
+
+function showCoinGain(amount, x, y, multiplier = 1) {
+  const popup = document.createElement("span");
+  popup.className = `coin-gain coin-gain-${Math.min(amount, 5)}`;
+  popup.textContent = multiplier > 1 ? `+${amount} x${multiplier}` : `+${amount}`;
+  popup.style.left = `${x}px`;
+  popup.style.top = `${y}px`;
+  arena.appendChild(popup);
+  setTimeout(() => popup.remove(), 820);
+}
+
 function levelSettings() {
-  const rawPressure = Math.min(state.wave / 110, 1);
+  const rawPressure = Math.min(state.wave / 190, 1);
   const pressure = rawPressure * rawPressure * (3 - 2 * rawPressure);
-  const latePressure = Math.max(0, (state.wave - 32) / 90);
+  const latePressure = Math.max(0, (state.wave - 70) / 130);
   const distractorCount =
-    (state.wave >= 6 ? 1 : 0) +
-    (state.wave >= 22 ? 1 : 0) +
-    (state.wave >= 44 ? 1 : 0) +
-    (Math.random() < latePressure * 0.35 ? 1 : 0);
-  const lifetimeMin = 2300 - pressure * 820;
-  const lifetimeMax = 2900 - pressure * 1020;
+    (state.wave >= 14 ? 1 : 0) +
+    (state.wave >= 48 ? 1 : 0) +
+    (state.wave >= 92 ? 1 : 0) +
+    (Math.random() < latePressure * 0.22 ? 1 : 0);
+  const lifetimeMin = 2850 - pressure * 760;
+  const lifetimeMax = 3600 - pressure * 980;
   return {
-    delay: rand(620 - pressure * 300, 1320 - pressure * 620),
+    delay: rand(980 - pressure * 360, 1780 - pressure * 620),
     lifetime: rand(lifetimeMin, lifetimeMax),
     distractorCount,
-    size: rand(48 - pressure * 8, 64 - pressure * 10),
-    radiusNoise: rand(-14 - pressure * 26, 18 + pressure * 34),
+    size: rand(54 - pressure * 8, 70 - pressure * 11),
+    radiusNoise: rand(-8 - pressure * 20, 12 + pressure * 26),
     pressure,
   };
 }
@@ -187,32 +237,32 @@ function fakeVisuals(pressure) {
   const shapePool = [
     "circle",
     "diamond",
-    ...(state.wave >= 10 ? ["triangle"] : []),
-    ...(state.wave >= 14 ? ["bar"] : []),
-    ...(state.wave >= 18 ? ["wide-bar"] : []),
-    ...(state.wave >= 22 ? ["pill"] : []),
-    ...(state.wave >= 26 ? ["thin-bar"] : []),
-    ...(state.wave >= 30 ? ["hexagon"] : []),
-    ...(state.wave >= 34 ? ["corner"] : []),
-    ...(state.wave >= 38 ? ["soft-square"] : []),
-    ...(state.wave >= 46 ? ["ring"] : []),
-    ...(state.wave >= 54 ? ["slash"] : []),
-    ...(state.wave >= 64 ? ["small-square"] : []),
-    ...(state.wave >= 76 ? ["square"] : []),
+    ...(state.wave >= 24 ? ["triangle"] : []),
+    ...(state.wave >= 34 ? ["bar"] : []),
+    ...(state.wave >= 44 ? ["wide-bar"] : []),
+    ...(state.wave >= 56 ? ["pill"] : []),
+    ...(state.wave >= 68 ? ["thin-bar"] : []),
+    ...(state.wave >= 82 ? ["hexagon"] : []),
+    ...(state.wave >= 96 ? ["corner"] : []),
+    ...(state.wave >= 112 ? ["soft-square"] : []),
+    ...(state.wave >= 132 ? ["ring"] : []),
+    ...(state.wave >= 152 ? ["slash"] : []),
+    ...(state.wave >= 174 ? ["small-square"] : []),
+    ...(state.wave >= 196 ? ["square"] : []),
   ];
   const colorPool = [
     "#ff345d",
     "#ffe066",
     "#47d9ff",
-    ...(state.wave >= 18 ? ["#b8ff68"] : []),
-    ...(state.wave >= 32 ? ["#48ffcf"] : []),
-    ...(state.wave >= 52 ? ["#42f48f"] : []),
-    ...(state.wave >= 70 ? ["#62ffac"] : []),
+    ...(state.wave >= 44 ? ["#b8ff68"] : []),
+    ...(state.wave >= 82 ? ["#48ffcf"] : []),
+    ...(state.wave >= 122 ? ["#42f48f"] : []),
+    ...(state.wave >= 164 ? ["#62ffac"] : []),
   ];
   const shape = shapePool[Math.floor(rand(0, shapePool.length))];
   const color = colorPool[Math.floor(rand(0, colorPool.length))];
-  const moves = state.wave >= 32 && Math.random() < pressure * 0.55;
-  const drift = rand(18 + pressure * 16, 48 + pressure * 30);
+  const moves = state.wave >= 90 && Math.random() < pressure * 0.32;
+  const drift = rand(12 + pressure * 12, 34 + pressure * 22);
 
   return {
     shape,
@@ -255,18 +305,25 @@ function startGame() {
   state.wave = 0;
   state.lastReaction = null;
   state.watchingAd = false;
-  state.tutorialActive = true;
-  game.classList.remove("is-menu", "ko-down");
-  game.classList.add("is-tutorial");
+  resetCoinCombo();
+  state.tutorialActive = shouldShowTutorial();
+  game.classList.remove("is-menu", "ko-down", "is-tutorial");
+  if (state.tutorialActive) game.classList.add("is-tutorial");
   boxer.classList.remove("laughing");
   updateDamageBlur();
   startScreen.classList.add("hidden");
   gameOver.classList.add("hidden");
   gameOver.classList.remove("countdown-replay");
   koCount?.classList.add("hidden");
-  tutorial.classList.remove("hidden");
+  tutorial.classList.toggle("hidden", !state.tutorialActive);
   updateReplayActions();
   updateHud();
+  if (!state.tutorialActive) {
+    state.running = true;
+    scheduleNextSpawn(350);
+    return;
+  }
+  markTutorialSeen();
   state.tutorialTimer = setTimeout(() => {
     state.tutorialActive = false;
     state.running = true;
@@ -377,6 +434,7 @@ function spawnSignal(settings, isFake = false) {
   const centerX = boxerRect.left - rect.left + boxerRect.width / 2;
   const centerY = boxerRect.top - rect.top + boxerRect.height * 0.43;
   const safePadding = Math.max(72, settings.size * 1.8);
+  const edgePadding = Math.max(72, settings.size * 1.35);
   const forbidden = {
     left: boxerRect.left - rect.left - safePadding,
     right: boxerRect.right - rect.left + safePadding,
@@ -391,8 +449,8 @@ function spawnSignal(settings, isFake = false) {
     angle = rand(0, Math.PI * 2);
     const baseRadius = Math.min(rect.width, rect.height) * rand(0.42, 0.56);
     const radius = baseRadius + settings.radiusNoise;
-    x = clamp(centerX + Math.cos(angle) * radius, 42, rect.width - 42);
-    y = clamp(centerY + Math.sin(angle) * radius, 92, rect.height - 46);
+    x = clamp(centerX + Math.cos(angle) * radius, edgePadding, rect.width - edgePadding);
+    y = clamp(centerY + Math.sin(angle) * radius, edgePadding + 26, rect.height - edgePadding);
     const insideForbidden =
       x > forbidden.left && x < forbidden.right && y > forbidden.top && y < forbidden.bottom;
     if (!insideForbidden) break;
@@ -456,14 +514,26 @@ function handleSignalClick(id) {
   const speedBonus = Math.max(0, 720 - reaction);
   const comboMultiplier = 1 + Math.floor(state.combo / 5) * 0.25;
   const points = Math.round((100 + speedBonus) * comboMultiplier);
+  updateCoinCombo(reaction);
+  const baseCoins = coinsForReaction(reaction);
+  const earnedCoins = baseCoins * state.coinMultiplier;
 
   state.combo += 1;
   state.score += points;
+  state.coins += earnedCoins;
   state.lastReaction = reaction;
+  saveCoins();
   signal.element.classList.add("hit");
+  showCoinGain(
+    earnedCoins,
+    Number.parseFloat(signal.element.style.left),
+    Number.parseFloat(signal.element.style.top),
+    state.coinMultiplier,
+  );
   dodge(signal.angle);
   pulse("good");
   updateHud();
+  updateReplayActions();
   setTimeout(() => signal.element.remove(), 150);
 }
 
@@ -486,6 +556,7 @@ function expireSignal(id) {
 
 function registerFailure(attack = attackFromAngle(rand(0, Math.PI * 2))) {
   state.combo = 0;
+  resetCoinCombo();
   state.lives = Math.max(0, state.lives - 1);
   state.lastReaction = null;
   playImpactSound();
@@ -749,6 +820,7 @@ function updateTinnitus() {
 }
 
 function triggerKnockout() {
+  if (state.knockedOut) return;
   state.knockedOut = true;
   updateDamageBlur();
   clearTimeout(state.spawnTimer);
