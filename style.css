@@ -482,7 +482,7 @@ body {
   height: 36%;
   transform: translateX(-50%);
   border: 0;
-  background: #06111d;
+  background: transparent;
   box-shadow: none;
   clip-path: none;
   z-index: 1;
@@ -509,7 +509,7 @@ body {
   border-right: 3px solid rgba(180, 248, 255, 0.82);
   border-bottom: 3px solid rgba(180, 248, 255, 0.82);
   border-left: 3px solid rgba(180, 248, 255, 0.82);
-  background: #06111d;
+  background: transparent;
   box-shadow: 0 0 16px rgba(71, 217, 255, 0.2);
 }
 
@@ -573,7 +573,7 @@ body {
   width: 60%;
   height: 10%;
   border-color: rgba(255, 52, 93, 0.9);
-  background: #06111d;
+  background: transparent;
   box-shadow: 0 0 14px rgba(255, 52, 93, 0.2);
 }
 
