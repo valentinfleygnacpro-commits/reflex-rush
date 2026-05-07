@@ -807,11 +807,11 @@ function throwPunch(attack) {
   setTimeout(() => {
     pulse("bad");
     impact();
-  }, attack.includes("hook") ? 190 : attack.includes("straight") ? 145 : 115);
+  }, attack.includes("hook") ? 150 : attack.includes("straight") ? 120 : 100);
 
   setTimeout(() => {
     boxer.classList.remove(className);
-  }, attack.includes("hook") || attack.includes("uppercut") ? 460 : 360);
+  }, attack.includes("hook") ? 350 : attack.includes("uppercut") ? 330 : 310);
 }
 
 function dodge(angle) {
@@ -836,7 +836,7 @@ function impact() {
   setTimeout(() => {
     boxer.classList.remove("impact");
     game.classList.remove("shake");
-  }, 210);
+  }, 140);
 }
 
 function pulse(type) {
