@@ -47,6 +47,7 @@ const state = {
   tutorialTimer: null,
   koCountdownTimers: [],
   koSpeechUtterances: [],
+  speechUnlocked: false,
   tutorialActive: false,
   recoveryTimer: null,
   recoveryStartedAt: 0,
@@ -114,6 +115,30 @@ function applyAvatar() {
 
 function updateSoundButton() {
   if (soundButton) soundButton.textContent = state.muted ? "Son OFF" : "Son ON";
+}
+
+function pickVoice(langPrefix) {
+  if (!("speechSynthesis" in window)) return null;
+  const voices = window.speechSynthesis.getVoices();
+  return (
+    voices.find((voice) => voice.lang?.toLowerCase().startsWith(langPrefix.toLowerCase())) ??
+    voices[0] ??
+    null
+  );
+}
+
+function unlockSpeech() {
+  if (state.muted || state.speechUnlocked || !("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.resume?.();
+  const unlock = new SpeechSynthesisUtterance(".");
+  unlock.volume = 0.01;
+  unlock.rate = 1.5;
+  unlock.pitch = 1;
+  const voice = pickVoice("fr");
+  if (voice) unlock.voice = voice;
+  window.speechSynthesis.speak(unlock);
+  state.speechUnlocked = true;
 }
 
 function updateReplayActions(message = "") {
@@ -216,6 +241,7 @@ function updateHud() {
 
 function startGame() {
   initAudio();
+  unlockSpeech();
   stopTinnitus();
   clearTimeout(state.tutorialTimer);
   clearKoCountdown();
@@ -607,11 +633,14 @@ function playLaughSound() {
 function speakTaunt() {
   if (state.muted || !("speechSynthesis" in window)) return;
   window.speechSynthesis.cancel();
+  window.speechSynthesis.resume?.();
   const taunt = new SpeechSynthesisUtterance("Retourne t'entrainer petite salope");
   taunt.lang = "fr-FR";
   taunt.rate = 0.82;
   taunt.pitch = 0.42;
-  taunt.volume = 0.72;
+  taunt.volume = 1;
+  const voice = pickVoice("fr");
+  if (voice) taunt.voice = voice;
   setTimeout(() => window.speechSynthesis.speak(taunt), 780);
 }
 
@@ -622,9 +651,11 @@ function speakCount(number) {
   window.speechSynthesis.resume?.();
   const count = new SpeechSynthesisUtterance(words[number - 1]);
   count.lang = "en-US";
+  const voice = pickVoice("en");
+  if (voice) count.voice = voice;
   count.rate = 0.86;
   count.pitch = 0.62;
-  count.volume = 0.95;
+  count.volume = 1;
   state.koSpeechUtterances.push(count);
   window.speechSynthesis.speak(count);
 }
@@ -895,8 +926,18 @@ soundButton?.addEventListener("click", () => {
   state.muted = !state.muted;
   saveMuted();
   if (state.muted) stopTinnitus();
+  else {
+    state.speechUnlocked = false;
+    unlockSpeech();
+  }
   updateSoundButton();
 });
+
+if ("speechSynthesis" in window) {
+  window.speechSynthesis.onvoiceschanged = () => {
+    window.speechSynthesis.getVoices();
+  };
+}
 
 coinReplayButton?.addEventListener("click", replayWithCoin);
 adReplayButton?.addEventListener("click", replayWithAd);
