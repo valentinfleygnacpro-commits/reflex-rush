@@ -473,6 +473,7 @@ function spawnSignal(settings, isFake = false) {
     element: signal,
     bornAt: performance.now(),
     isFake,
+    color: fake?.color ?? "#39ff9b",
     angle,
     attack: attackFromAngle(angle),
     timeout: null,
@@ -498,6 +499,7 @@ function handleSignalClick(id) {
 
   if (signal.isFake) {
     signal.element.classList.add("missed");
+    playWrongSignalSound(signal.color);
     registerFailure(signal.attack);
     setTimeout(() => signal.element.remove(), 190);
     return;
@@ -517,6 +519,7 @@ function handleSignalClick(id) {
   state.lastReaction = reaction;
   saveCoins();
   signal.element.classList.add("hit");
+  playGoodSignalSound(reaction);
   showCoinGain(
     earnedCoins,
     Number.parseFloat(signal.element.style.left),
@@ -619,6 +622,70 @@ function createNoiseSource() {
   source.buffer = buffer;
   source.loop = true;
   return source;
+}
+
+function playGoodSignalSound(reaction = 500) {
+  if (state.muted) return;
+  initAudio();
+  if (!audioContext) return;
+
+  const now = audioContext.currentTime;
+  const speed = 1 - clamp(reaction, 180, 760) / 760;
+  const oscillator = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+  const filter = audioContext.createBiquadFilter();
+
+  oscillator.type = "triangle";
+  oscillator.frequency.setValueAtTime(540 + speed * 260, now);
+  oscillator.frequency.exponentialRampToValueAtTime(920 + speed * 360, now + 0.065);
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.linearRampToValueAtTime(0.16, now + 0.012);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.13);
+  filter.type = "highpass";
+  filter.frequency.setValueAtTime(220, now);
+
+  oscillator.connect(gain).connect(filter).connect(audioContext.destination);
+  oscillator.start(now);
+  oscillator.stop(now + 0.14);
+}
+
+function wrongSignalFrequency(color) {
+  const frequencies = {
+    "#ff345d": 138,
+    "#ffe066": 176,
+    "#47d9ff": 226,
+    "#b8ff68": 188,
+    "#48ffcf": 214,
+    "#42f48f": 198,
+    "#62ffac": 206,
+  };
+  return frequencies[color?.toLowerCase()] ?? 150;
+}
+
+function playWrongSignalSound(color) {
+  if (state.muted) return;
+  initAudio();
+  if (!audioContext) return;
+
+  const now = audioContext.currentTime;
+  const base = wrongSignalFrequency(color);
+  const oscillator = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+  const filter = audioContext.createBiquadFilter();
+
+  oscillator.type = "sawtooth";
+  oscillator.frequency.setValueAtTime(base * 1.5, now);
+  oscillator.frequency.exponentialRampToValueAtTime(base, now + 0.16);
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.linearRampToValueAtTime(0.18, now + 0.015);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+  filter.type = "lowpass";
+  filter.frequency.setValueAtTime(520, now);
+  filter.Q.setValueAtTime(1.4, now);
+
+  oscillator.connect(gain).connect(filter).connect(audioContext.destination);
+  oscillator.start(now);
+  oscillator.stop(now + 0.22);
 }
 
 function playImpactSound(intensity = 1) {
