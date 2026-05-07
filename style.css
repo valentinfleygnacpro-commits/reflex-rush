@@ -379,7 +379,7 @@ body {
   aspect-ratio: 0.86;
   transform: translateX(-50%);
   border-radius: 45% 45% 24% 24%;
-  background: rgba(6, 17, 25, 0.18);
+  background: #06111d;
   z-index: 3;
 }
 
@@ -447,7 +447,7 @@ body {
 }
 
 .laughing .head {
-  background: rgba(6, 17, 25, 0.18);
+  background: #06111d;
 }
 
 .laughing .mouth {
@@ -478,7 +478,7 @@ body {
   height: 36%;
   transform: translateX(-50%);
   border: 0;
-  background: transparent;
+  background: #06111d;
   box-shadow: none;
   clip-path: none;
   z-index: 1;
@@ -505,6 +505,7 @@ body {
   border-right: 3px solid rgba(180, 248, 255, 0.82);
   border-bottom: 3px solid rgba(180, 248, 255, 0.82);
   border-left: 3px solid rgba(180, 248, 255, 0.82);
+  background: #06111d;
   box-shadow: 0 0 16px rgba(71, 217, 255, 0.2);
 }
 
@@ -520,7 +521,7 @@ body {
   inset: 0;
   border-radius: 999px;
   border-top-color: transparent;
-  background: transparent;
+  background: #06111d;
   transform-origin: center bottom;
   animation: guard-forearm 920ms ease-in-out infinite alternate;
   will-change: transform;
@@ -568,7 +569,7 @@ body {
   width: 60%;
   height: 10%;
   border-color: rgba(255, 52, 93, 0.9);
-  background: transparent;
+  background: #06111d;
   box-shadow: 0 0 14px rgba(255, 52, 93, 0.2);
 }
 
