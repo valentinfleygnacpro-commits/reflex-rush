@@ -27,7 +27,7 @@ const soundButton = document.getElementById("soundButton");
 
 const MAX_LIVES = 3;
 const RECOVERY_MS = 7000;
-const COIN_REPLAY_COST = 1;
+const COIN_REPLAY_COST = 100;
 const DEFAULT_COINS = 0;
 const COIN_GRANT_KEY = "neonGuardCoinGrant1789";
 const COIN_RESET_KEY = "reflexRushCoinsResetZero";
@@ -160,7 +160,7 @@ function updateReplayActions(message = "") {
   if (coinReplayButton) {
     coinReplayButton.disabled = state.watchingAd || state.coins < COIN_REPLAY_COST;
   }
-  if (adReplayButton) adReplayButton.disabled = state.watchingAd;
+  if (adReplayButton) adReplayButton.disabled = true;
   if (replayStatusEl) replayStatusEl.textContent = message;
 }
 
@@ -372,14 +372,7 @@ function replayWithCoin() {
 }
 
 function replayWithAd() {
-  if (state.watchingAd) return;
-  state.watchingAd = true;
-  clearKoCountdown();
-  updateReplayActions("Pub en cours...");
-  setTimeout(() => {
-    state.watchingAd = false;
-    startGame();
-  }, 2500);
+  updateReplayActions("Pub indisponible");
 }
 
 function returnHome() {
