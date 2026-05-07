@@ -1946,24 +1946,30 @@ h1 {
 
 @keyframes arm-punch-left {
   0% {
+    opacity: 1;
     transform: rotate(0deg) scaleY(1);
   }
   32% {
-    transform: translate(78%, 42%) rotate(-8deg) scaleY(1.95);
+    opacity: 0.28;
+    transform: translate(42%, 24%) rotate(-5deg) scaleY(1.42);
   }
   100% {
+    opacity: 1;
     transform: rotate(0deg) scaleY(1);
   }
 }
 
 @keyframes arm-punch-right {
   0% {
+    opacity: 1;
     transform: rotate(0deg) scaleY(1);
   }
   32% {
-    transform: translate(-78%, 42%) rotate(8deg) scaleY(1.95);
+    opacity: 0.28;
+    transform: translate(-42%, 24%) rotate(5deg) scaleY(1.42);
   }
   100% {
+    opacity: 1;
     transform: rotate(0deg) scaleY(1);
   }
 }
@@ -2016,30 +2022,38 @@ h1 {
 
 @keyframes arm-hook-left {
   0% {
+    opacity: 1;
     transform: rotate(0deg) scaleY(1);
   }
   20% {
-    transform: translate(10%, 0) rotate(-118deg) scaleY(1.12);
+    opacity: 0.72;
+    transform: translate(8%, 0) rotate(-72deg) scaleY(1.05);
   }
   46% {
-    transform: translate(92%, 18%) rotate(-78deg) scaleY(1.34);
+    opacity: 0.22;
+    transform: translate(48%, 12%) rotate(-50deg) scaleY(1.12);
   }
   100% {
+    opacity: 1;
     transform: rotate(0deg) scaleY(1);
   }
 }
 
 @keyframes arm-hook-right {
   0% {
+    opacity: 1;
     transform: rotate(0deg) scaleY(1);
   }
   20% {
-    transform: translate(-10%, 0) rotate(118deg) scaleY(1.12);
+    opacity: 0.72;
+    transform: translate(-8%, 0) rotate(72deg) scaleY(1.05);
   }
   46% {
-    transform: translate(-92%, 18%) rotate(78deg) scaleY(1.34);
+    opacity: 0.22;
+    transform: translate(-48%, 12%) rotate(50deg) scaleY(1.12);
   }
   100% {
+    opacity: 1;
     transform: rotate(0deg) scaleY(1);
   }
 }
@@ -2093,30 +2107,38 @@ h1 {
 
 @keyframes arm-uppercut-left {
   0% {
+    opacity: 1;
     transform: rotate(0deg) scaleY(1);
   }
   22% {
-    transform: translate(34%, 48%) rotate(-18deg) scaleY(1.1);
+    opacity: 0.62;
+    transform: translate(22%, 34%) rotate(-12deg) scaleY(1.04);
   }
   42% {
-    transform: translate(48%, -8%) rotate(-8deg) scaleY(1.62);
+    opacity: 0.24;
+    transform: translate(34%, -4%) rotate(-6deg) scaleY(1.28);
   }
   100% {
+    opacity: 1;
     transform: rotate(0deg) scaleY(1);
   }
 }
 
 @keyframes arm-uppercut-right {
   0% {
+    opacity: 1;
     transform: rotate(0deg) scaleY(1);
   }
   22% {
-    transform: translate(-34%, 48%) rotate(18deg) scaleY(1.1);
+    opacity: 0.62;
+    transform: translate(-22%, 34%) rotate(12deg) scaleY(1.04);
   }
   42% {
-    transform: translate(-48%, -8%) rotate(8deg) scaleY(1.62);
+    opacity: 0.24;
+    transform: translate(-34%, -4%) rotate(6deg) scaleY(1.28);
   }
   100% {
+    opacity: 1;
     transform: rotate(0deg) scaleY(1);
   }
 }
